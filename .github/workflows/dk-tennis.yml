@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 2
       - run: python3 -m pip install --quiet curl_cffi
       - name: fetch DraftKings tennis
         run: |
@@ -102,8 +102,11 @@ jobs:
             git config user.name "dk-tennis-bot"
             git config user.email "dk-tennis-bot@users.noreply.github.com"
             git add data/dk_tennis_board.json
-            git commit -q -m "DK tennis board $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push -q origin HEAD:main
+            # AMEND, not append: at a 5-minute cadence a new commit each time would be ~288
+            # a day and the repo would carry gigabytes of dead board history. One commit,
+            # force-pushed, keeps the clone tiny and the fetch fast.
+            git commit -q --amend -m "DK tennis board $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push -qf origin HEAD:main
             echo "published"
           else
             echo "no change; nothing published"
